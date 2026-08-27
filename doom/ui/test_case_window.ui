@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TestCaseLabWindow</class>
+
+ <widget class="QMainWindow" name="testCaseLabWindow">
+
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1400</width>
+    <height>900</height>
+   </rect>
+  </property>
+
+  <property name="windowTitle">
+   <string>DOOM AI — Test Case Lab</string>
+  </property>
+
+  <widget class="QWidget" name="centralwidget">
+
+   <layout class="QVBoxLayout" name="mainLayout">
+
+    <item>
+     <widget class="QLabel" name="testCaseLabBanner">
+      <property name="text">
+       <string>DOOM AI — TEST CASE LAB | SIMULATION MODE — NO LIVE PATIENT DATA</string>
+      </property>
+
+      <property name="styleSheet">
+       <string>font-size:22px;font-weight:bold;</string>
+      </property>
+
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+
+    <item>
+     <layout class="QHBoxLayout" name="controlsLayout">
+
+      <item>
+       <widget class="QLabel" name="testCaseLabel">
+        <property name="text">
+         <string>Test Case:</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QComboBox" name="testCaseCombo"/>
+      </item>
+
+      <item>
+       <widget class="QPushButton" name="loadTestCaseButton">
+        <property name="text">
+         <string>Load Test Case</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QPushButton" name="runTestCaseButton">
+        <property name="text">
+         <string>RUN TEST CASE</string>
+        </property>
+
+        <property name="styleSheet">
+         <string>font-weight:bold;</string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QPushButton" name="clearTestCaseButton">
+        <property name="text">
+         <string>Clear</string>
+        </property>
+       </widget>
+      </item>
+
+     </layout>
+    </item>
+
+    <item>
+     <widget class="QGroupBox" name="scenarioGroup">
+      <property name="title">
+       <string>Scenario Information</string>
+      </property>
+
+      <layout class="QVBoxLayout" name="scenarioLayout">
+
+       <item>
+        <widget class="QLabel" name="testCaseDescription">
+         <property name="text">
+          <string>Select a test case.</string>
+         </property>
+
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+
+       <item>
+        <widget class="QLabel" name="testCaseStatus">
+         <property name="text">
+          <string>Ready.</string>
+         </property>
+
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+
+      </layout>
+     </widget>
+    </item>
+
+    <item>
+     <widget class="QGroupBox" name="patientsGroup">
+      <property name="title">
+       <string>Simulated Patient Arrivals</string>
+      </property>
+
+      <layout class="QVBoxLayout" name="patientsLayout">
+
+       <item>
+        <widget class="QTableWidget" name="testCasePatients">
+
+         <property name="columnCount">
+          <number>11</number>
+         </property>
+
+         <column>
+          <property name="text">
+           <string>Patient ID</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Age</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Sex</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Chief Complaint</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Narrative</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>History</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>HR</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>RR</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>SBP</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>DBP</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>SpO2</string>
+          </property>
+         </column>
+
+        </widget>
+       </item>
+
+      </layout>
+     </widget>
+    </item>
+
+    <item>
+     <widget class="QGroupBox" name="resultsGroup">
+      <property name="title">
+       <string>Simulated AI Priority Queue / Resource Dispatch</string>
+      </property>
+
+      <layout class="QVBoxLayout" name="resultsLayout">
+
+       <item>
+        <widget class="QTableWidget" name="testCaseResults">
+
+         <property name="columnCount">
+          <number>8</number>
+         </property>
+
+         <column>
+          <property name="text">
+           <string>Rank</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Patient</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>ESI</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Criticality</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Confidence</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Layer</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Resource Dispatch</string>
+          </property>
+         </column>
+
+         <column>
+          <property name="text">
+           <string>Transfer</string>
+          </property>
+         </column>
+
+        </widget>
+       </item>
+
+      </layout>
+     </widget>
+    </item>
+
+   </layout>
+
+  </widget>
+
+ </widget>
+
+ <resources/>
+ <connections/>
+
+</ui>

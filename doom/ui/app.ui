@@ -1,0 +1,928 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1400</width>
+    <height>900</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>DOOM AI — Emergency Department Command Center</string>
+  </property>
+  <widget class="QScrollArea" name="centralScrollArea">
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="widgetResizable">
+    <bool>true</bool>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAsNeeded</enum>
+   </property>
+   <property name="horizontalScrollBarPolicy">
+    <enum>Qt::ScrollBarAsNeeded</enum>
+   </property>
+   <widget class="QWidget" name="scrollContentWidget">
+    <layout class="QVBoxLayout" name="scrollContentLayout">
+     <item>
+      <widget class="QLabel" name="titleLabel">
+       <property name="text">
+        <string>DOOM AI</string>
+       </property>
+       <property name="styleSheet">
+        <string>font-size:28px;font-weight:bold;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="hospitalEnvironmentGroup">
+       <property name="title">
+        <string>Hospital Environment &amp; System Context</string>
+       </property>
+       <layout class="QGridLayout" name="environmentLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="profileLabel">
+          <property name="text">
+           <string>Hospital Profile</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="profileCombo">
+          <item>
+           <property name="text">
+            <string>Multispecialty Tertiary Center</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Rural Primary Health Centre</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="shiftLabel">
+          <property name="text">
+           <string>Shift</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QComboBox" name="shiftCombo">
+          <item>
+           <property name="text">
+            <string>Day</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Night</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QLabel" name="historyRatioLabel">
+          <property name="text">
+           <string>Expected data mix: ~50% prior history / ~50% no prior history</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <widget class="QLabel" name="permissionStatus">
+          <property name="text">
+           <string>Access: NOT AUTHORIZED</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="hospitalDatabaseLabel">
+          <property name="text">
+           <string>Hospital Database</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="hospitalDatabaseCombo" />
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="batchHospitalStatus">
+          <property name="text">
+           <string>Hospital DB: not synced</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="permissionButton">
+          <property name="text">
+           <string>Authorize System Access</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="QLabel" name="layerLabel">
+          <property name="text">
+           <string>Operational profile: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="QLabel" name="imageStatus">
+          <property name="text">
+           <string>Image parser: waiting</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="6">
+         <widget class="QPushButton" name="openTestCaseLabButton">
+          <property name="text">
+           <string>Open Test Case Lab — Simulation</string>
+          </property>
+          <property name="toolTip">
+           <string>Open isolated H01–H16 simulation window. No live patient data is used.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="capacityGroup">
+       <property name="title">
+        <string>Hospital Capacity</string>
+       </property>
+       <layout class="QGridLayout" name="capacityLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="erTotalLabel">
+          <property name="text">
+           <string>ER Total</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="erTotal">
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="erAvailableLabel">
+          <property name="text">
+           <string>ER Available</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QSpinBox" name="erAvailable">
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QLabel" name="otTotalLabel">
+          <property name="text">
+           <string>OT Total</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <widget class="QSpinBox" name="otTotal">
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="6">
+         <widget class="QLabel" name="otAvailableLabel">
+          <property name="text">
+           <string>OT Available</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="7">
+         <widget class="QSpinBox" name="otAvailable">
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="edVisitsLabel">
+          <property name="text">
+           <string>ED Visits/Day</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="edVisits">
+          <property name="maximum">
+           <number>100000</number>
+          </property>
+          <property name="value">
+           <number>500</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="edWaitLabel">
+          <property name="text">
+           <string>ED Wait (min)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QDoubleSpinBox" name="edWait">
+          <property name="maximum">
+           <double>100000.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>35.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5" colspan="3">
+         <widget class="QPushButton" name="applyCapacityButton">
+          <property name="text">
+           <string>Apply Manual Capacity</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="ambulanceGroup">
+       <property name="title">
+        <string>Ambulance / Pre-Arrival Telemetry</string>
+       </property>
+       <layout class="QGridLayout" name="ambulanceLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="ambulanceLookupLabel">
+          <property name="text">
+           <string>Patient Name / ID</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="ambulancePatientLookup">
+          <property name="placeholderText">
+           <string>Enter patient name or patient ID</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="ambulanceLookupButton">
+          <property name="text">
+           <string>Load Ambulance Data</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="3">
+         <widget class="QLabel" name="ambulanceStatus">
+          <property name="text">
+           <string>No ambulance pre-arrival data loaded</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="ambulanceHRValue">
+          <property name="text">
+           <string>HR: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="ambulanceRRValue">
+          <property name="text">
+           <string>RR: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="ambulanceSpO2Value">
+          <property name="text">
+           <string>SpO₂: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="ambulanceSBPValue">
+          <property name="text">
+           <string>SBP: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="ambulanceDBPValue">
+          <property name="text">
+           <string>DBP: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="ambulanceSourceValue">
+          <property name="text">
+           <string>Source: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="3">
+         <widget class="QCheckBox" name="useAmbulanceForTriageCheckBox">
+          <property name="text">
+           <string>Use ambulance data for triage</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="ambulanceTriageModeLabel">
+          <property name="text">
+           <string>Triage Data Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" colspan="2">
+         <widget class="QComboBox" name="ambulanceTriageModeCombo">
+          <item>
+           <property name="text">
+            <string>Ignore ambulance data</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Ambulance-only provisional triage</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Combine ambulance + hospital data</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="singlePatientGroup">
+       <property name="title">
+        <string>Single-Patient Detailed Triage / Clinician Review</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>650</height>
+        </size>
+       </property>
+       <layout class="QGridLayout" name="singleLayout">
+        <item row="1" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Patient ID</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="patientId" />
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Age</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QSpinBox" name="age">
+          <property name="maximum">
+           <number>120</number>
+          </property>
+          <property name="value">
+           <number>35</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Sex</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="QComboBox" name="sex">
+          <item>
+           <property name="text">
+            <string>U</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>F</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>M</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="6">
+         <widget class="QLabel">
+          <property name="text">
+           <string>History</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="7">
+         <widget class="QComboBox" name="historyMode">
+          <item>
+           <property name="text">
+            <string>History Available</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>No Prior History</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Chief Complaint</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="3">
+         <widget class="QPlainTextEdit" name="complaint" />
+        </item>
+        <item row="2" column="4">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Clinical Narrative</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5" colspan="3">
+         <widget class="QPlainTextEdit" name="narrative" />
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>HR</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QDoubleSpinBox" name="hr">
+          <property name="maximum">
+           <double>300.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>80.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel">
+          <property name="text">
+           <string>RR</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="3">
+         <widget class="QDoubleSpinBox" name="rr">
+          <property name="maximum">
+           <double>150.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>18.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4">
+         <widget class="QLabel">
+          <property name="text">
+           <string>SBP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="5">
+         <widget class="QDoubleSpinBox" name="sbp">
+          <property name="maximum">
+           <double>300.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>120.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="6">
+         <widget class="QLabel">
+          <property name="text">
+           <string>DBP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="7">
+         <widget class="QDoubleSpinBox" name="dbp">
+          <property name="maximum">
+           <double>200.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>75.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>SpO2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QDoubleSpinBox" name="spo2">
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>98.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QPushButton" name="uploadImageButton">
+          <property name="text">
+           <string>Upload POCUS/eFAST Image</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3" colspan="3">
+         <widget class="QLabel" name="imagePreview">
+          <property name="text">
+           <string>No image loaded</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>220</width>
+            <height>120</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="6">
+         <widget class="QPushButton" name="evaluateButton">
+          <property name="text">
+           <string>Evaluate Patient</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="7">
+         <widget class="QPushButton" name="clearButton">
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Image Findings</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" colspan="7">
+         <widget class="QPlainTextEdit" name="imageFindings" />
+        </item>
+        <item row="6" column="0" colspan="8">
+         <widget class="QLabel" name="criticalityLabel">
+          <property name="text">
+           <string>CRITICALITY: Awaiting evaluation</string>
+          </property>
+          <property name="wordWrap">
+           <string>font-size:18px;font-weight:bold;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="4">
+         <widget class="QLabel" name="resultLabel">
+          <property name="text">
+           <string>ASSIGNED ESI LEVEL: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="4" colspan="4">
+         <widget class="QLabel" name="severityGuide">
+          <property name="text">
+           <string>Five-level severity explanation will appear here.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="4">
+         <widget class="QLabel" name="confidenceLabel">
+          <property name="text">
+           <string>SYSTEM CONFIDENCE: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="4" colspan="4">
+         <widget class="QLabel" name="indicesLabel">
+          <property name="text">
+           <string>SI: — | Pulse Pressure: — | Data Completeness: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="8">
+         <widget class="QPlainTextEdit" name="rationale">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0" colspan="6">
+         <widget class="QLabel" name="dispatchLabel">
+          <property name="text">
+           <string>RESOURCE DISPATCH / ROUTING: —</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="6">
+         <widget class="QPushButton" name="overrideButton">
+          <property name="text">
+           <string>Manual Clinician Override</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="7">
+         <widget class="QLabel" name="auditLabel">
+          <property name="text">
+           <string>AUDIT: Awaiting evaluation</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0" colspan="8">
+         <widget class="QLabel" name="severityScaleLabel">
+          <property name="text">
+           <string>ESI 1: Immediate Resuscitation  |  ESI 2: Emergency/High Risk  |  ESI 3: Urgent  |  ESI 4: Less Urgent  |  ESI 5: Non-Urgent</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="patientNameLabel">
+          <property name="text">
+           <string>Patient Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="patientName">
+          <property name="placeholderText">
+           <string>Patient name</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="batchArrivalGroup">
+       <property name="title">
+        <string>Live ED Arrival Stream — Multiple Patients</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>210</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="arrivalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="arrivalButtonLayout">
+          <item>
+           <widget class="QPushButton" name="addPatientButton">
+            <property name="text">
+             <string>+ Add Patient</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="removePatientButton">
+            <property name="text">
+             <string>Remove Selected</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="importCsvButton">
+            <property name="text">
+             <string>Import CSV</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="clearBatchButton">
+            <property name="text">
+             <string>Clear Batch</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="uploadBatchImageButton">
+            <property name="text">
+             <string>Upload Image for Selected</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="evaluateBatchButton">
+            <property name="text">
+             <string>EVALUATE ALL ARRIVALS</string>
+            </property>
+            <property name="styleSheet">
+             <string>font-weight:bold;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="batchTable">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="columnCount">
+           <number>11</number>
+          </property>
+          <column>
+           <property name="text">
+            <string>Patient ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Age</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Sex</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Chief Complaint</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Narrative</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>History</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>HR</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>RR</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>SBP</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>DBP</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>SpO2</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="batchResultsGroup">
+       <property name="title">
+        <string>AI Priority Queue &amp; Resource Dispatch</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>230</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="resultsLayout">
+        <item>
+         <widget class="QLabel" name="batchSummary">
+          <property name="text">
+           <string>No batch evaluated.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="batchResults">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>160</height>
+           </size>
+          </property>
+          <property name="columnCount">
+           <number>8</number>
+          </property>
+          <column>
+           <property name="text">
+            <string>Rank</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Patient</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>ESI</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Criticality</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Confidence</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Layer</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Resource Dispatch</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Transfer</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <resources />
+ <connections />
+</ui>

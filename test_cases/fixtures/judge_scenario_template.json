@@ -1,0 +1,44 @@
+{
+  "deployment_profile": "MULTISPECIALTY_TERTIARY_CENTER",
+  "hospital": {
+    "bed_occupancy_pct": 100,
+    "ot_occupancy_pct": 100,
+    "current_ed_volume": 150,
+    "normal_ed_volume": 100,
+    "daily_ed_visits": 500,
+    "ed_wait_minutes": 80,
+    "emergency_rooms_total": 3,
+    "emergency_rooms_available": 0,
+    "operating_theatres_total": 3,
+    "operating_theatres_available": 0
+  },
+  "staff": {
+    "shift": "night",
+    "emergency_physicians": 2,
+    "nurses": 3,
+    "generalists": 2,
+    "specialists": {
+      "trauma surgery": 1,
+      "orthopaedics": 1,
+      "generalist": 1
+    }
+  },
+  "patients": [
+    {
+      "patient_id": "JUDGE-001",
+      "age_years": 75,
+      "sex": "F",
+      "chief_complaint": "nausea and back pain",
+      "narrative": "Atypical symptoms, diaphoresis, no known prior record available.",
+      "history_known": false,
+      "files_available": false,
+      "vitals": {
+        "hr": 112,
+        "rr": 22,
+        "sbp": 94,
+        "dbp": 60,
+        "spo2": 94
+      }
+    }
+  ]
+}
