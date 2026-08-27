@@ -1,4 +1,4 @@
-﻿# DOOM AI â€” Modular OOP Prototype
+﻿# DOOM AI Prototype
 
 This version separates the current triage prototype into modules so the same clinical engine can be called from a Qt UI, tests, a FHIR/REST adapter, or future mobile/web clients.
 
