@@ -231,6 +231,14 @@ class EDPRiorityQueue:
                 )
             )
 
+            print(
+                f"[QUEUE] "
+                f"{patient.patient_id} | "
+                f"ESI={recommendation.esi_level} | "
+                f"urgency={urgency:.2f} | "
+                f"confidence={recommendation.confidence_pct:.1f}%"
+            )
+
             scored.append(
                 (
                     recommendation.esi_level,

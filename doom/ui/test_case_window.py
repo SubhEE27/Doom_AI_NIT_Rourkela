@@ -12,7 +12,8 @@ from PySide6.QtUiTools import QUiLoader
 from doom.services.test_case_ui_service import (
     TestCaseUIService,
 )
-
+from doom.core.routing import TransferPlanner
+from doom.services.batch_triage import BatchTriageService
 
 class TestCaseWindowController:
     """Controller for the isolated DOOM AI Test Case Lab."""
@@ -31,6 +32,8 @@ class TestCaseWindowController:
         self.batch_service = batch_service
         self.assets = assets
         self.staff = staff
+        self.transfer_planner = TransferPlanner()
+        self.batch_service = BatchTriageService(self.engine)
 
         self.window = None
         self.current_test_case = None
@@ -217,55 +220,121 @@ class TestCaseWindowController:
     def run_selected_case(self) -> None:
 
         if self.current_test_case is None:
-
             QMessageBox.information(
                 self.window,
                 "Test Case Lab",
                 "Load a test case first.",
             )
-
             return
 
         if self.engine is None:
-
             QMessageBox.critical(
                 self.window,
                 "Test Case Lab",
                 "DOOM AI engine is not available.",
             )
+            return
 
+        if self.assets is None:
+            QMessageBox.critical(
+                self.window,
+                "Test Case Lab",
+                "Hospital resource configuration is not available.",
+            )
+            return
+
+        if self.staff is None:
+            QMessageBox.critical(
+                self.window,
+                "Test Case Lab",
+                "Staff configuration is not available.",
+            )
             return
 
         try:
 
-            results = []
-
-            for patient in (
+            patients = list(
                 self.current_test_case.patients
-            ):
+            )
 
-                recommendation = (
-                    self.engine.evaluate(
-                        patient,
-                        self.assets,
-                        self.staff,
-                    )
-                )
+            # --------------------------------------------------
+            # STEP 1: use the SAME batch triage pipeline
+            # used by the automated test suite
+            # --------------------------------------------------
 
-                results.append(
-                    (
-                        patient,
+            batch_service = BatchTriageService(
+                self.engine
+            )
+
+            batch_result = batch_service.evaluate_batch(
+                patients,
+                self.assets,
+                self.staff,
+            )
+
+            # --------------------------------------------------
+            # STEP 2: recommendations returned by the
+            # existing batch pipeline already contain:
+            # ESI, confidence, layer, routing/transfer data
+            # --------------------------------------------------
+
+            recommendations = list(
+                batch_result.recommendations
+            )
+
+            # --------------------------------------------------
+            # STEP 3: connect each recommendation back
+            # to the simulated patient
+            # --------------------------------------------------
+
+            patients_by_id = {
+                str(patient.patient_id): patient
+                for patient in patients
+            }
+
+            ranked = []
+
+            for recommendation in recommendations:
+
+                patient_id = str(
+                    getattr(
                         recommendation,
+                        "patient_id",
+                        "",
                     )
                 )
 
-            self.render_results(results)
+                patient = patients_by_id.get(
+                    patient_id
+                )
+
+                if patient is not None:
+                    ranked.append(
+                        (
+                            patient,
+                            recommendation,
+                        )
+                    )
+
+            # --------------------------------------------------
+            # STEP 4: the BatchTriageService has already
+            # performed the real queue/routing logic.
+            # Do NOT sort again here.
+            # --------------------------------------------------
+
+            routes = {}
+
+            self.render_results(
+                ranked,
+                routes,
+            )
 
             self.window.testCaseStatus.setText(
                 (
                     f"{self.current_test_case.case_id} "
                     "executed ✓ | "
-                    f"{len(results)} patient(s) evaluated"
+                    f"{len(ranked)} patient(s) evaluated "
+                    "| priority queue generated"
                 )
             )
 
@@ -277,14 +346,127 @@ class TestCaseWindowController:
                 str(exc),
             )
 
+    def priority_sort_key(
+        self,
+        item,
+    ):
+        patient, recommendation = item
+
+        risk = getattr(
+            recommendation,
+            "risk_assessment",
+            None,
+        )
+
+        shock_index = getattr(
+            risk,
+            "shock_index",
+            None,
+        )
+
+        critical_flags = getattr(
+            risk,
+            "critical_flags",
+            [],
+        )
+
+        # Lower ESI number = higher priority.
+        esi = getattr(
+            recommendation,
+            "esi_level",
+            5,
+        )
+
+        # More physiological instability should come earlier.
+        shock_value = (
+            float(shock_index)
+            if shock_index is not None
+            else -1.0
+        )
+
+        criticality_score = len(
+            critical_flags or []
+        )
+
+        # Stable deterministic tie-breaker.
+        patient_id = str(
+            getattr(
+                patient,
+                "patient_id",
+                "",
+            )
+        )
+
+        return (
+            int(esi),
+            -criticality_score,
+            -shock_value,
+            patient_id,
+        )
+
     # ======================================================
     # RESULTS
     # ======================================================
 
+    def get_criticality_label(
+        self,
+        recommendation,
+    ) -> str:
+
+        risk = getattr(
+            recommendation,
+            "risk_assessment",
+            None,
+        )
+
+        # Use an explicit criticality field if the engine provides one.
+        explicit = getattr(
+            recommendation,
+            "criticality",
+            None,
+        )
+
+        if explicit:
+            return str(explicit)
+
+        # Otherwise use existing risk flags.
+        critical_flags = getattr(
+            risk,
+            "critical_flags",
+            [],
+        )
+
+        if critical_flags:
+            return "HIGH"
+
+        # Fall back to the actual ESI level rather than
+        # incorrectly calling every non-flagged patient NORMAL.
+        esi = getattr(
+            recommendation,
+            "esi_level",
+            None,
+        )
+
+        mapping = {
+            1: "CRITICAL",
+            2: "HIGH",
+            3: "MODERATE",
+            4: "LOW",
+            5: "MINIMAL",
+        }
+
+        return mapping.get(
+            esi,
+            "UNSPECIFIED",
+        )
+
     def render_results(
         self,
         results,
+        routes=None,
     ) -> None:
+
+        routes = routes or {}
 
         table = self.window.testCaseResults
 
@@ -297,14 +479,25 @@ class TestCaseWindowController:
 
             table.insertRow(row)
 
-            values = [
-                str(
-                    getattr(
-                        recommendation,
-                        "rank",
-                        row + 1,
-                    )
+            route = routes.get(
+                patient.patient_id,
+                getattr(
+                    recommendation,
+                    "dispatch_route",
+                    "—",
                 ),
+            )
+
+            transfer_candidate = bool(
+                getattr(
+                    recommendation,
+                    "transfer_candidate",
+                    False,
+                )
+            )
+
+            values = [
+                str(row + 1),
 
                 patient.patient_id,
 
@@ -316,12 +509,8 @@ class TestCaseWindowController:
                     )
                 ),
 
-                str(
-                    getattr(
-                        recommendation,
-                        "criticality",
-                        "—",
-                    )
+                self.get_criticality_label(
+                    recommendation
                 ),
 
                 (
@@ -330,8 +519,7 @@ class TestCaseWindowController:
                         recommendation,
                         "confidence_pct",
                         None,
-                    )
-                    is not None
+                    ) is not None
                     else "—"
                 ),
 
@@ -344,22 +532,13 @@ class TestCaseWindowController:
                 ),
 
                 str(
-                    getattr(
-                        recommendation,
-                        "resource_dispatch",
-                        "—",
+                    routes.get(
+                        patient.patient_id,
+                        "-"
                     )
                 ),
 
-                (
-                    "YES"
-                    if getattr(
-                        recommendation,
-                        "transfer_candidate",
-                        False,
-                    )
-                    else "NO"
-                ),
+                "YES" if transfer_candidate else "NO",
             ]
 
             for column, value in enumerate(values):
@@ -367,7 +546,9 @@ class TestCaseWindowController:
                 table.setItem(
                     row,
                     column,
-                    QTableWidgetItem(value),
+                    QTableWidgetItem(
+                        value
+                    ),
                 )
 
     # ======================================================

@@ -230,30 +230,31 @@ class TestCaseUIService:
 
     def _history_mix(self) -> UITestCase:
 
+        # Keep the interactive H02 scenario aligned with the
+        # official automated H02 validation case:
+        # 12 arrivals, 6 with history and 6 without history,
+        # while keeping the clinical presentation essentially
+        # identical across the cohort.
         patients = []
 
-        for index in range(10):
+        for index in range(12):
 
-            history_available = index < 5
+            history_available = index < 6
 
             patients.append(
                 PatientRecord(
                     patient_id=f"H02-P{index + 1:02d}",
                     age_years=30 + index,
-                    sex="M" if index % 2 == 0 else "F",
-                    chief_complaint=(
-                        "Emergency department arrival"
-                    ),
-                    narrative=(
-                        "Mixed history availability simulation."
-                    ),
+                    sex="U",
+                    chief_complaint="Abdominal pain",
+                    narrative="Live arrival",
                     history_known=history_available,
                     files_available=history_available,
                     vitals={
-                        "hr": 82 + index,
-                        "rr": 18 + (index % 3),
-                        "sbp": 118,
-                        "dbp": 76,
+                        "hr": 80,
+                        "rr": 18,
+                        "sbp": 120,
+                        "dbp": 75,
                         "spo2": 98,
                     },
                     image_tags=[],
@@ -262,10 +263,11 @@ class TestCaseUIService:
 
         return UITestCase(
             case_id="H02",
-            name="H02 — 50/50 History Availability",
+            name="H02 — Dynamic 50/50 History Availability",
             description=(
-                "Ten simultaneous arrivals: five with "
-                "hospital history and five without history."
+                "Twelve simultaneous arrivals: six with "
+                "hospital history and six without history. "
+                "Missing history must not break the triage pipeline."
             ),
             hospital_profile=(
                 "Multispecialty Tertiary Center"
@@ -275,8 +277,8 @@ class TestCaseUIService:
             er_available=5,
             ot_total=2,
             ot_available=2,
-            ed_visits=500,
-            ed_wait=35,
+            ed_visits=20,
+            ed_wait=20,
             patients=patients,
         )
 

@@ -1,4 +1,6 @@
 # DOOM AI — Emergency Department Command & Triage Decision Support
+=======
+﻿# DOOM AI — Emergency Department Command & Triage Decision Support
 
 DOOM AI is an AI-assisted emergency-department triage and resource-dispatch prototype designed to help hospital staff prioritize, sequence, and route arriving patients when an emergency department is under pressure.
 
