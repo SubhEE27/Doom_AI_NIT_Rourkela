@@ -381,11 +381,14 @@ Released under the **GPL-3.0 License**. See [`LICENSE`](LICENSE) for details.
 
 ## 👤 Author
 
-**Subhajit** ([@SubhEE27](https://github.com/SubhEE27))
+**Subhrangsu Sekhar Nandi** ([@SubhEE27](https://github.com/SubhEE27))
 Department of Electrical Engineering, National Institute of Technology Rourkela
 
-- GitHub: [github.com/SubhEE27](https://github.com/SubhEE27)
-- Project: [Doom_AI_NIT_Rourkela](https://github.com/SubhEE27/Doom_AI_NIT_Rourkela)
+**Om Prakash Mallick** ([@OM-2204](https://github.com/OM-2204))
+Department of Mining Engineering, National Institute of Technology Rourkela
+
+**Rakesh Chandra Nath** ([@rakesh1256-dev](https://github.com/rakesh1256-dev))
+Department of Electrical Engineering, National Institute of Technology Rourkela
 
 *Feel free to open an issue or a pull request — feedback, bug reports, and contributions are welcome.*
 
