@@ -268,7 +268,7 @@ The runner reports `PASS` / `FAIL` / `SKIP` / `TOTAL` and writes results to `rep
 
 | Live Triage Console | Test Case Lab |
 |---|---|
-| ![Live Triage Console](docs/screenshots/live_triage_console.png) | ![Test Case Lab](https://drive.google.com/drive/folders/1z-ZuB7UBMyyxgqMThWzPXk8wa3ec4HPl) |
+| ![Live Triage Console](docs/screenshots/live_triage_console.png) | ![Test Case Lab](https://dash.cloudflare.com/f62295aa5ed7e36cd3ac635d38135e84/r2/default/buckets/doomai/objects/Live.png) |
 
 | H04 — Same-ESI Reshuffle | H15 — Mass Casualty Surge |
 |---|---|
