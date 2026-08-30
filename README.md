@@ -1,147 +1,166 @@
-# DOOM AI — Emergency Department Command & Triage Decision Support
+<div align="center">
 
-﻿# DOOM AI — Emergency Department Command & Triage Decision Support
+# 🚨 DOOM AI
+### Emergency Department Command & Triage Decision-Support System
 
-DOOM AI is an AI-assisted emergency-department triage and resource-dispatch prototype designed to help hospital staff prioritize, sequence, and route arriving patients when an emergency department is under pressure.
+*Because in an emergency, seconds decide priorities — and priorities decide outcomes.*
 
-The system is designed as a **clinical decision-support tool, not a replacement for a clinician**. It combines structured patient information, physiological observations, prior-history availability, hospital-resource context, ambulance pre-arrival telemetry, and optional clinical image findings to produce an explainable triage recommendation and operational routing suggestion.
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![PySide6](https://img.shields.io/badge/PySide6-Qt%20UI-41CD52?logo=qt&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Ambulance%20Gateway-009688?logo=fastapi&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-Multimodal%20Vision-8E75B2?logo=googlegemini&logoColor=white)
+![License](https://img.shields.io/badge/License-GPL--3.0-blue)
+![Status](https://img.shields.io/badge/Status-Hackathon%20Prototype-orange)
 
----
+**Built at NIT Rourkela** · [Repository](https://github.com/SubhEE27/Doom_AI_NIT_Rourkela)
 
-## 1. Problem We Are Solving
-
-When an emergency department becomes busy, patient sequencing can depend heavily on rapid human judgment. The challenge is not only identifying how sick a patient appears, but also deciding:
-
-- who needs attention first;
-- how two patients with the same ESI level should be ordered;
-- what resources are available right now;
-- whether a patient can be retained locally;
-- whether a transfer should be considered;
-- how the recommendation should change when the hospital is operating with fewer resources;
-- how to work when patient history is incomplete;
-- how pre-arrival ambulance data can prepare the ED before arrival;
-- how image-derived findings can become additional evidence without independently assigning ESI.
-
-The project follows the challenge direction of helping staff prioritize and route patients as they arrive, reducing waiting time without replacing clinical judgment, using realistically available early-arrival data, and designing for worst-case operating conditions.
+</div>
 
 ---
 
-# 2. Core Design Philosophy
+## 🩺 What is DOOM AI?
 
-DOOM AI follows five main principles.
+Picture an emergency department at 2 a.m. Five patients walk in within ten minutes. Two ambulances are inbound. The OT is nearly full. Someone has to decide — *right now* — who gets seen first, who can wait, and who needs to be sent elsewhere.
 
-### 2.1 Patient severity first
+**DOOM AI** is an AI-assisted command layer for exactly that moment. It's not a diagnosis engine and it's not trying to replace the clinician standing at the desk — it's the system quietly doing the math in the background: reading vitals, prior history, ambulance telemetry, and even image-based findings, then handing the care team a ranked, explainable, resource-aware recommendation they can accept or override in one click.
 
-The system evaluates physiological and clinical evidence before considering operational routing.
+> ⚠️ **DOOM AI is a hackathon prototype, not a certified medical device.** The clinician always has the final word — see [Safety, Scope & Limitations](#-safety-scope--limitations).
 
-### 2.2 Explainable recommendation
+---
 
-The UI exposes ESI, criticality, confidence, physiological indicators, rationale, operational layer, resource dispatch and transfer recommendation.
+## 🎯 The Problem
 
-### 2.3 Dynamic priority, not just ESI sorting
+When an ED gets busy, sequencing patients isn't just "who looks sickest." Real triage has to answer, simultaneously:
 
-ESI is not treated as the entire queue.
+- Who needs attention **first**, right now?
+- Two patients share the same ESI level — who actually goes first?
+- What resources (beds, OT, staff) are free *at this exact moment*?
+- Can this patient be treated locally, or does it need a transfer?
+- What changes if the hospital is running on reduced resources?
+- What do you do when half your patients arrive with **no prior history**?
+- Can pre-arrival ambulance data get the ED ready *before the patient walks in*?
+- Can an uploaded image add evidence — without hijacking the whole decision?
 
-If several patients receive the same ESI, available urgency and physiological evidence can be used for secondary ordering.
+DOOM AI is built to answer all of these together, using only the data that's realistically available in the first minutes of an arrival — and to keep working sensibly even in worst-case, resource-starved conditions.
+
+---
+
+## 🧭 Design Philosophy
+
+| Principle | What it means |
+|---|---|
+| **1. Severity first** | Physiological and clinical evidence is weighed *before* any operational routing decision. |
+| **2. Explainable, always** | Every recommendation ships with ESI, criticality, confidence, rationale, and the operational context behind it — never a black-box number. |
+| **3. Dynamic priority, not just ESI sorting** | Same ESI ≠ same urgency. Secondary evidence reorders the queue when it matters. |
+| **4. Resource-aware** | Recommendations factor in live ER/OT capacity and staffing — never assume infinite resources. |
+| **5. Clinician stays in control** | The system *recommends*. A human reviews, accepts, or overrides — and that decision is audited. |
 
 ```text
 ESI
-  ↓
+ ↓
 Secondary urgency ordering
-  ↓
+ ↓
 Resource availability
-  ↓
+ ↓
 Operational routing
 ```
 
-### 2.4 Resource-aware operation
-
-The system considers the current ER/OT capacity, operational layer, staff/resource state and transfer options rather than assuming unlimited capacity.
-
-### 2.5 Clinician remains in control
-
-The system recommends. A clinician can review and override the recommendation. The audit workflow records the recommendation/review path.
-
 ---
 
-# 3. High-Level Solution Architecture
+## 🏗️ System Architecture
 
 ```text
                          ┌─────────────────────────┐
-                         │       DOOM AI UI        │
-                         │     PySide6 / Qt UI     │
+                         │        DOOM AI UI        │
+                         │      PySide6 / Qt UI     │
                          └────────────┬────────────┘
                                       │
               ┌───────────────────────┼────────────────────────┐
               │                       │                        │
               ▼                       ▼                        ▼
-       Manual patient          Ambulance Gateway        Test Case Lab
-       entry / batch            pre-arrival feed         isolated UI
+       Manual patient          Ambulance Gateway         Test Case Lab
+       entry / batch            pre-arrival feed          isolated UI
               │                       │                        │
               └───────────────┬───────┴───────────────┬────────┘
-                              ▼                       │
-                       Patient / evidence             │
-                              │                       │
-                    ┌─────────▼─────────┐             │
-                    │  Triage pipeline  │◄────────────┘
-                    │  & AI engine      │
-                    └─────────┬─────────┘
-                              │
-             ┌────────────────┼─────────────────┐
-             ▼                ▼                 ▼
-         ESI / severity   Priority queue   Resource routing
-             │                │                 │
-             └────────────────┼─────────────────┘
-                              ▼
-                    Explainable UI result
-                              │
-                              ▼
-                    Result / audit reporting
+                               ▼                        │
+                       Patient / evidence               │
+                               │                        │
+                     ┌─────────▼─────────┐              │
+                     │  Triage pipeline  │◄─────────────┘
+                     │   & AI engine     │
+                     └─────────┬─────────┘
+                               │
+              ┌────────────────┼─────────────────┐
+              ▼                ▼                  ▼
+        ESI / severity   Priority queue    Resource routing
+              │                │                  │
+              └────────────────┼──────────────────┘
+                               ▼
+                     Explainable UI result
+                               │
+                               ▼
+                     Result / audit reporting
 ```
 
 ---
 
-# 4. Project Structure
+## 🧰 Tech Stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| **Desktop UI** | [PySide6](https://doc.qt.io/qtforpython/) (Qt for Python) | Native, responsive desktop app for the live triage console and the isolated Test Case Lab |
+| **AI Engine** | Python core services (`doom/services/engine.py`) | Rule + evidence-driven triage, priority queueing, and resource routing logic |
+| **Multimodal Vision** | [Google Gemini](https://ai.google.dev/) (`google-genai`) | Optional live image-evidence analysis (trauma, bleeding, structural findings) |
+| **Ambulance Gateway** | [FastAPI](https://fastapi.tiangolo.com/) + [Uvicorn](https://www.uvicorn.org/) | Standalone microservice that ingests pre-arrival ambulance telemetry |
+| **Data Contracts** | [Pydantic](https://docs.pydantic.dev/) | Structured, validated patient/telemetry/FHIR-shaped data models |
+| **Networking** | `requests` | Client-side calls from the DOOM AI app to the ambulance gateway |
+| **Testing** | Custom test runner (`test_cases/`) + `tests/` | 16-scenario hackathon validation suite + unit tests, with JSON/CSV/HTML reports |
+| **Language** | Python 3.10+ | Everything, end to end |
+| **License** | GPL-3.0 | Open source |
+
+---
+
+## 📁 Project Structure
 
 ```text
-Doom_AI_ChatGPT Backup/
+Doom_AI_NIT_Rourkela/
 │
-├── doom/
-│   ├── api/
-│   ├── config/
-│   ├── core/
-│   ├── models/
+├── doom/                          # Core application
+│   ├── api/                       # API-facing contracts
+│   ├── config/                    # App configuration
+│   ├── core/                      # Core domain logic
+│   ├── models/                    # Data models
 │   ├── services/
 │   │   ├── ambulance_feed.py
 │   │   ├── ambulance_gateway_client.py
 │   │   ├── arrival_stream.py
 │   │   ├── audit.py
 │   │   ├── batch_triage.py
-│   │   ├── engine.py
+│   │   ├── engine.py               # 🧠 The triage/AI engine
 │   │   ├── hospital_resources.py
 │   │   ├── image_parser.py
 │   │   ├── priority_queue.py
 │   │   ├── presentation_result.py
 │   │   ├── result_reporter.py
 │   │   ├── test_case_ui_service.py
-│   │   └── vision_analysis.py
+│   │   └── vision_analysis.py      # Gemini multimodal path
 │   ├── ui/
 │   │   ├── app.ui
 │   │   ├── main_window.py
 │   │   ├── test_case_window.py
 │   │   └── test_case_window.ui
-│   └── main.py
+│   └── main.py                     # Entry point: `python -m doom.main`
 │
-├── ambulance_gateway/
+├── ambulance_gateway/               # Standalone FastAPI microservice
 │   ├── __init__.py
 │   ├── server.py
 │   ├── database.py
 │   └── schemas.py
 │
 ├── tools/
-│   └── simulate_ambulance.py
+│   └── simulate_ambulance.py        # CLI ambulance simulator for demos
 │
-├── test_cases/
+├── test_cases/                      # 🧪 The 16-scenario (H01–H16) validation suite
 │   ├── test_case_runner.py
 │   ├── test_01_profiles.py
 │   ├── test_02_history_mix.py
@@ -160,70 +179,29 @@ Doom_AI_ChatGPT Backup/
 │   ├── test_15_mass_casualty.py
 │   └── test_16_ui_contract.py
 │
-├── tests/
-├── reports/
+├── hackathon_tests/
+│   └── fixtures/                    # Sample fixtures used by the validation suite
+│
+├── sample_images/                   # Sample clinical images for the vision pipeline demo
+│
+├── tests/                           # Additional unit tests
+├── reports/                         # Auto-generated hackathon_latest.{json,csv,html}
 ├── requirements.txt
+├── LICENSE                          # GPL-3.0
 └── README.md
 ```
 
 ---
 
-# 5. Main Functional Modules
+## ✨ Core Features
 
-## 5.1 Hospital profiles
+### 🏥 Two Deployment Profiles
+| Profile | Behavior |
+|---|---|
+| **Multispecialty Tertiary Center** | Full workflow — ambulance pre-arrival telemetry, richer resource capabilities |
+| **Rural Primary Health Centre** | Constrained deployment — ambulance integration intentionally disabled, low-resource operational behavior |
 
-The current design supports:
-
-```text
-Multispecialty Tertiary Center
-Rural Primary Health Centre
-```
-
-### Multispecialty Tertiary Center
-
-Provides the richer operational workflow, including ambulance pre-arrival telemetry and higher-resource capabilities.
-
-### Rural Primary Health Centre
-
-Represents a constrained deployment. Ambulance integration is intentionally disabled in this profile in the current prototype, so the rural workflow uses local/manual information and the selected low-resource operational behavior.
-
----
-
-# 6. Hospital Capacity
-
-The UI exposes:
-
-- ER total;
-- ER available;
-- OT total;
-- OT available;
-- ED visits/day;
-- ED wait time.
-
-This allows the operational response to change when resources are constrained.
-
-Example:
-
-```text
-High-acuity patient
-+
-local capacity available
-        ↓
-retain / route locally
-
-High-acuity patient
-+
-local capacity unavailable
-        ↓
-consider transfer / alternate routing
-```
-
----
-
-# 7. Triage and Priority Behavior
-
-The output uses a five-level ESI scale:
-
+### 📊 Explainable Five-Level ESI Triage
 ```text
 ESI 1 — Immediate Resuscitation
 ESI 2 — Emergency / High Risk
@@ -231,900 +209,192 @@ ESI 3 — Urgent
 ESI 4 — Less Urgent
 ESI 5 — Non-Urgent
 ```
+...plus criticality, system confidence, uncertainty, shock index, data completeness, rationale, and operational layer — all surfaced in the UI, not buried in a log file.
 
-The UI also exposes:
-
+### 🚑 Ambulance Pre-Arrival Telemetry
 ```text
-Criticality
-System confidence
-Uncertainty
-Shock index / physiological indicators
-Data completeness
-Rationale
-Operational layer
-Resource dispatch / routing
-Transfer consideration
+Ambulance / simulator → FastAPI gateway → Telemetry storage → DOOM AI gateway client → Existing UI
 ```
+Three triage modes: **ignore** telemetry, **ambulance-only provisional** triage, or **combine** ambulance + hospital data (with in-hospital measurements always taking precedence once available).
 
-## Secondary priority
+### 🖼️ Clinical Image Evidence Layer
+Images are treated as **additional evidence**, not an independent verdict — findings like visible trauma, superficial bleeding, chest asymmetry, or possible structural abnormality feed into the final assessment. The live Gemini multimodal path activates only when an API key is configured.
 
-Two patients can have the same ESI but different immediate urgency.
+### 👨‍⚕️ Human-in-the-Loop Override & Audit
+```text
+AI recommendation → Clinician review → Accept or override
+```
+Every override is recorded in an audit trail. The AI never has the last word.
 
-Therefore the queue can perform secondary ordering using the available evidence instead of treating every same-ESI patient as identical.
+### 🧪 Isolated Test Case Lab
+A dedicated **"SIMULATION MODE — NO LIVE PATIENT DATA"** window lets you run any of the 16 validation scenarios without ever touching the live patient workflow.
 
 ---
 
-# 8. History Availability
-
-The project explicitly tests mixed availability of patient history.
-
-The intended scenario mix is approximately:
-
-```text
-50% prior history available
-50% no prior history
-```
-
-The system should not invent missing history. It should continue using the evidence that is actually available.
-
----
-
-# 9. Ambulance Pre-Arrival Telemetry
-
-The ambulance workflow is implemented as a separate gateway:
-
-```text
-Ambulance / simulator
-        ↓
-FastAPI gateway
-        ↓
-Telemetry storage
-        ↓
-DOOM AI gateway client
-        ↓
-Existing UI
-```
-
-The gateway can receive:
-
-```text
-Patient ID
-Patient name
-HR
-RR
-SBP
-DBP
-SpO₂
-ETA
-Ambulance source
-Notes
-Timestamp
-```
-
-The clinician enters a patient identifier and selects:
-
-```text
-Load Ambulance Data
-```
-
-The retrieved telemetry appears in the existing ambulance section.
-
-## Ambulance triage modes
-
-The UI supports:
-
-```text
-Ignore ambulance data
-Ambulance-only provisional triage
-Combine ambulance + hospital data
-```
-
-### Ignore ambulance data
-
-Telemetry may be displayed but is not used in the triage decision.
-
-### Ambulance-only provisional triage
-
-The pre-arrival measurements can be used to form a provisional assessment before hospital observations are entered.
-
-### Combined mode
-
-Ambulance telemetry can be combined with current hospital observations. Current in-hospital measurements take precedence where they exist; ambulance measurements remain useful as pre-arrival context.
-
-## Deployment restriction
-
-The ambulance feature is exposed only for:
-
-```text
-Multispecialty Tertiary Center
-```
-
-and disabled for:
-
-```text
-Rural Primary Health Centre
-```
-
----
-
-# 10. Clinical Image Workflow
-
-Image analysis is an **evidence-generation layer**, not an independent ESI classifier.
-
-```text
-Image uploaded
-      ↓
-Local image parsing / multimodal analysis
-      ↓
-Image findings
-      ↓
-Other patient information
-      ↓
-Final triage evaluation
-```
-
-Possible findings represented by the prototype include observable trauma and injury-related signs such as:
-
-```text
-visible trauma
-superficial bleeding
-chest asymmetry
-possible structural abnormality
-other observable injury findings
-```
-
-The live Gemini multimodal path is optional and only active when the Gemini API key is configured.
-
----
-
-# 11. Clinician Override and Audit
-
-DOOM AI follows a human-in-the-loop design.
-
-```text
-AI recommendation
-        ↓
-Clinician review
-        ↓
-Accept or override
-```
-
-The UI includes:
-
-```text
-Manual Clinician Override
-Audit status
-```
-
-The clinician remains responsible for the final clinical decision.
-
----
-
-# 12. Operational Layers
-
-The architecture supports operational layers representing different levels of resource and deployment constraints.
-
-The layer can influence routing, resource dispatch and safety-oriented behavior.
-
-This allows the same overall architecture to operate under different conditions instead of assuming a single fully resourced environment.
-
----
-
-# 13. Live ED Arrival Stream
-
-The main UI supports multi-patient arrival handling through:
-
-```text
-+ Add Patient
-Remove Selected
-Import CSV
-Upload Image for Selected
-EVALUATE ALL ARRIVALS
-```
-
-The intended flow is:
-
-```text
-multiple arrivals
-      ↓
-patient evaluation
-      ↓
-ESI / severity
-      ↓
-secondary priority ordering
-      ↓
-resource-aware routing
-      ↓
-priority queue
-```
-
-This is the basis for surge and mass-casualty scenarios.
-
----
-
-# 14. Isolated Test Case Lab
-
-Test cases are intentionally separated from the live patient workflow.
-
-The main UI exposes:
-
-```text
-Open Test Case Lab — Simulation
-```
-
-The separate window is labeled:
-
-```text
-DOOM AI — TEST CASE LAB
-SIMULATION MODE — NO LIVE PATIENT DATA
-```
-
-The Test Case Lab contains:
-
-- H01–H16 selector;
-- scenario description;
-- simulated patient arrivals;
-- isolated results;
-- run/clear controls.
-
-The automated test runner remains independent.
-
-Thus:
-
-```text
-LIVE UI
-    ↓
-real/manual patient workflow
-
-TEST CASE LAB
-    ↓
-isolated simulation workflow
-
-AUTOMATED TEST RUNNER
-    ↓
-repeatable validation + reports
-```
-
-This prevents test patients from being mixed into the live workflow.
-
----
-
-# 15. Complete Test-Case Catalogue
-
-The current validation suite defines 16 core scenarios.
-
-## H01 — Tertiary → Rural → Tertiary Profile Switching
-
-Tests switching between hospital deployment profiles and restoring the appropriate operational capabilities when switching back.
-
-## H02 — Dynamic 50/50 History Availability
-
-Tests a mixed stream with and without prior history.
-
-Expected behavior: evaluate using available evidence without assuming missing historical data.
-
-## H03 — 100–500+ ED/Day Scalability and Surge
-
-Tests increasing emergency-department load and larger simultaneous arrival batches.
-
-Expected behavior: retain functional triage, priority and resource-aware behavior under surge conditions.
-
-## H04 — Same-ESI Secondary Priority Reshuffling
-
-Tests cases where patients have the same ESI but different urgency signals.
-
-Expected behavior: secondary ordering determines who should be handled first.
-
-## H05 — Full ER/OT Capacity + Nearby Transfer
-
-Tests high-acuity demand when local capacity is constrained.
-
-Expected behavior: consider current resource availability and transfer/routing options.
-
-## H06 — Polymorphic L1/L2/L3/L4 Controller
-
-Tests adaptation to different operational layers.
-
-Expected behavior: operational decisions change with resource/deployment conditions.
-
-## H07 — Demographic-Calibrated Cohorts
-
-Tests infant, pediatric, adult and geriatric cohorts.
-
-Expected behavior: preserve clinically meaningful differences without breaking the common decision framework.
-
-## H08 — Pessimistic Safety Floor
-
-Tests missing, sparse, uncertain or degraded inputs.
-
-Expected behavior: avoid optimistic assumptions and preserve conservative safety behavior.
-
-## H09 — Ambulance Pre-Arrival Data Lookup and Preload
-
-Tests:
-
-```text
-patient ID
-   ↓
-gateway lookup
-   ↓
-ambulance telemetry
-   ↓
-UI preload
-```
-
-## H10 — Clinical Image Ingestion / Metadata
-
-Tests the image-ingestion and image-analysis path.
-
-Expected behavior: supported images are accepted; live multimodal findings are produced when the Gemini service is configured.
-
-## H11 — Clinician Override + Immutable Audit Event
-
-Tests review/override and audit recording.
-
-## H12 — Runtime System Permissions
-
-Tests permission-aware access to operational data/resources.
-
-## H13 — FHIR-Shaped Middleware Contract
-
-Tests the structured integration boundary used for middleware-style patient data exchange.
-
-## H14 — Unseen / Randomized Scenario Robustness
-
-Tests newly constructed patient conditions rather than relying on known/hardcoded identifiers.
-
-## H15 — 10-Patient Mass-Casualty Surge
-
-Tests simultaneous evaluation and priority ordering of a ten-patient surge.
-
-Expected behavior:
-
-```text
-10 patients
-    ↓
-batch evaluation
-    ↓
-ESI
-    ↓
-priority ordering
-    ↓
-resource-aware dispatch
-```
-
-## H16 — Frontend Object-Name Contract
-
-Tests the presence of UI object names required by the controller/application.
-
----
-
-# 16. Test and Validation Strategy
-
-## 16.1 Python compilation checks
-
-```powershell
-python -m py_compile doom/ui/main_window.py
-python -m py_compile doom/ui/test_case_window.py
-python -m py_compile doom/services/test_case_ui_service.py
-```
-
-## 16.2 Automated test suite
-
+## 🧪 The 16-Scenario Validation Suite
+
+| ID | Scenario | Tests |
+|---|---|---|
+| **H01** | Tertiary ↔ Rural Profile Switching | Switching deployment profiles and restoring capabilities |
+| **H02** | Dynamic 50/50 History Availability | Mixed history / no-history stream |
+| **H03** | 100–500+ ED/Day Scalability & Surge | Behavior under heavy load |
+| **H04** | Same-ESI Secondary Priority Reshuffle | Reordering equal-ESI patients by urgency |
+| **H05** | Full ER/OT Capacity + Nearby Transfer | Routing under constrained capacity |
+| **H06** | Polymorphic L1–L4 Controller | Adapting to operational layers |
+| **H07** | Demographic-Calibrated Cohorts | Infant, pediatric, adult, geriatric handling |
+| **H08** | Pessimistic Safety Floor | Behavior on missing/sparse/degraded input |
+| **H09** | Ambulance Pre-Arrival Lookup & Preload | Gateway lookup → UI preload |
+| **H10** | Clinical Image Ingestion | Image pipeline + Gemini findings |
+| **H11** | Clinician Override + Audit | Review/override recording |
+| **H12** | Runtime System Permissions | Permission-aware access |
+| **H13** | FHIR-Shaped Middleware Contract | Structured data exchange boundary |
+| **H14** | Unseen / Randomized Scenario Robustness | Novel, non-hardcoded cases |
+| **H15** | 10-Patient Mass-Casualty Surge | Batch evaluation + priority ordering at scale |
+| **H16** | Frontend Object-Name Contract | Required UI object names present |
+
+Run the whole suite:
 ```powershell
 python -m test_cases.test_case_runner
 ```
-
-The runner reports:
-
-```text
-PASS
-FAIL
-SKIP
-TOTAL
-```
-
-and writes validation reports.
-
-## 16.3 Interactive Test Case Lab
-
-```powershell
-python -m doom.main
-```
-
-Then:
-
-```text
-Open Test Case Lab — Simulation
-        ↓
-Select H01–H16
-        ↓
-Load Test Case
-        ↓
-RUN TEST CASE
-```
+The runner reports `PASS` / `FAIL` / `SKIP` / `TOTAL` and writes results to `reports/hackathon_latest.{json,csv,html}`.
 
 ---
 
-# 17. Reports
+## 📸 Screenshots & Test Results
 
-Reports are written to:
+> Drop your screenshots and test-run captures into a `docs/screenshots/` folder in the repo and reference them below — this section is the visual proof of DOOM AI in action.
 
-```text
-reports/
-```
+<div align="center">
 
-Common outputs include:
+| Live Triage Console | Test Case Lab |
+|---|---|
+| ![Live Triage Console](docs/screenshots/live_triage_console.png) | ![Test Case Lab](docs/screenshots/test_case_lab.png) |
 
-```text
-hackathon_latest.json
-hackathon_latest.csv
-hackathon_latest.html
-```
+| H04 — Same-ESI Reshuffle | H15 — Mass Casualty Surge |
+|---|---|
+| ![H04 result](docs/screenshots/h04_same_esi_reshuffle.png) | ![H15 result](docs/screenshots/h15_mass_casualty.png) |
 
-Open the report directory:
+| Ambulance Telemetry Preload | HTML Test Report |
+|---|---|
+| ![Ambulance preload](docs/screenshots/ambulance_preload.png) | ![HTML report](docs/screenshots/hackathon_report.png) |
 
-```powershell
-explorer .
-eports
-```
+</div>
 
-Open the HTML report:
-
-```powershell
-start .
-eports\hackathon_latest.html
-```
+**Suggested captures to add:**
+- ✅ A normal single-patient walkthrough (ESI → criticality → rationale → dispatch)
+- ✅ An ambulance simulator run feeding live telemetry into the UI
+- ✅ A same-ESI reshuffle (H04) before/after comparison
+- ✅ A full-capacity transfer decision (H05)
+- ✅ The 10-patient mass-casualty queue (H15) fully populated
+- ✅ The generated `hackathon_latest.html` report with PASS/FAIL counts
 
 ---
 
-# 18. Dependencies
+## ⚙️ Getting Started
 
-The project uses:
-
-```text
-Python
-PySide6
-google-genai
-Pydantic
-requests
-FastAPI
-Uvicorn
-```
-
-Install the exact committed dependency set with:
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-The authoritative versions are those recorded in `requirements.txt`.
-
----
-
-# 19. Fresh Installation
-
-Clone the repository:
-
+### 1. Clone & set up
 ```powershell
 git clone https://github.com/SubhEE27/Doom_AI_NIT_Rourkela.git
 cd Doom_AI_NIT_Rourkela
-```
-
-Create the virtual environment:
-
-```powershell
 python -m venv .venv
-```
-
-Activate it:
-
-```powershell
 .\.venv\Scripts\Activate.ps1
-```
-
-Install dependencies:
-
-```powershell
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
----
-
-# 20. Gemini API Configuration
-
-Do not commit the Gemini API key to GitHub.
-
-Set it as a Windows User environment variable:
-
+### 2. Configure Gemini (optional, enables live image analysis)
 ```powershell
-[Environment]::SetEnvironmentVariable(
-    "GEMINI_API_KEY",
-    "YOUR_REAL_GEMINI_KEY",
-    "User"
-)
+[Environment]::SetEnvironmentVariable("GEMINI_API_KEY", "YOUR_REAL_GEMINI_KEY", "User")
 ```
-
-Restart VS Code after setting it so the new terminal inherits the variable.
-
-Activate the environment:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-Verify:
-
-```powershell
-if ($env:GEMINI_API_KEY) {
-    "Gemini API key is loaded"
-} else {
-    "Gemini API key is missing"
-}
-```
-
-Python check:
-
+Restart your terminal/IDE afterward so the variable is picked up, then verify:
 ```powershell
 python -c "import os; print('Gemini key detected:', bool(os.getenv('GEMINI_API_KEY')))"
 ```
 
-SDK check:
-
+### 3. Launch the main UI
 ```powershell
-python -c "from google import genai; print('Gemini SDK OK')"
-```
-
-Each machine should provide its own Gemini API key.
-
----
-
-# 21. Launching the Main DOOM AI UI
-
-```powershell
-.\.venv\Scripts\Activate.ps1
 python -m doom.main
 ```
 
-The live application provides:
-
-```text
-Hospital Environment
-Hospital Capacity
-Ambulance / Pre-Arrival
-Single-Patient Detailed Triage
-Live ED Arrival Stream
-AI Priority Queue / Resource Dispatch
-```
-
----
-
-# 22. Running the Ambulance Gateway
-
-Terminal 1:
-
+### 4. Run the Ambulance Gateway (in a second terminal)
 ```powershell
-.\.venv\Scripts\Activate.ps1
 python -m uvicorn ambulance_gateway.server:app --host 127.0.0.1 --port 8000
 ```
+Interactive docs at `http://127.0.0.1:8000/docs`.
 
-Health endpoint:
-
-```text
-http://127.0.0.1:8000
-```
-
-Interactive API documentation:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
----
-
-# 23. Simulating an Ambulance
-
-Terminal 2:
-
+### 5. Simulate an ambulance (in a third terminal)
 ```powershell
-.\.venv\Scripts\Activate.ps1
 python tools/simulate_ambulance.py --patient-id AMB-1001 --patient-name "Demo Patient"
 ```
-
-Verify the gateway data:
-
-```powershell
-Invoke-RestMethod "http://127.0.0.1:8000/ambulance/patient/AMB-1001"
-```
-
-Launch DOOM AI and enter:
-
-```text
-AMB-1001
-```
-
-in the ambulance Patient Name / ID field, then click:
-
-```text
-Load Ambulance Data
-```
+Then in the app, enter `AMB-1001` in the ambulance field and click **Load Ambulance Data**.
 
 ---
 
-# 24. Recommended Judge Demonstration
+## 🎬 Suggested Demo Flow
 
-A strong demo sequence is:
-
-### 24.1 Normal patient
-
-Enter patient information manually and show:
-
-```text
-ESI
-Criticality
-Confidence
-Rationale
-Resource dispatch
-```
-
-### 24.2 Ambulance arrival
-
-```text
-Ambulance simulator
-    ↓
-telemetry upload
-    ↓
-Load Ambulance Data
-    ↓
-preloaded vitals
-    ↓
-provisional / combined assessment
-```
-
-### 24.3 Same-ESI priority
-
-Run:
-
-```text
-H04 — Same-ESI Secondary Priority Reshuffle
-```
-
-and show that equal ESI does not imply equal priority.
-
-### 24.4 Resource-constrained patient
-
-Run:
-
-```text
-H05 — Full ER/OT Capacity + Nearby Transfer
-```
-
-and show how capacity affects operational routing.
-
-### 24.5 Mass casualty
-
-Open:
-
-```text
-Test Case Lab
-```
-
-Select:
-
-```text
-H15 — Mass Casualty Surge
-```
-
-Load and execute the scenario.
-
-Show the simulated patient queue and resulting priority order.
+1. **Normal patient** — manual entry → ESI, criticality, confidence, rationale, dispatch.
+2. **Ambulance arrival** — simulator → gateway → `Load Ambulance Data` → provisional/combined assessment.
+3. **Same-ESI priority** — run **H04** and show equal ESI ≠ equal priority.
+4. **Resource-constrained patient** — run **H05** and show capacity-driven routing.
+5. **Mass casualty** — open the Test Case Lab, load **H15**, and watch the ten-patient queue resolve.
 
 ---
 
-# 25. Why the Solution Is Useful
+## 🛡️ Safety, Scope & Limitations
 
-## Faster prioritization
+DOOM AI is a **hackathon prototype** — it is **not a medical device** and must never substitute for professional clinical judgment. A real-world deployment would additionally need: clinical validation, prospective evaluation, formal governance/approval, secure auth, encrypted transport, privacy-preserving data handling, model monitoring, demographic/clinical validation, hospital-system integration, incident response, and formal audit/retention policies. That's precisely why the human-in-the-loop override sits at the center of the design.
 
-Several arriving patients can be processed within one common workflow.
-
-## Better queue quality
-
-Same-ESI patients can still be differentiated by urgency signals.
-
-## Resource-aware decisions
-
-The AI considers the relationship between clinical demand and actual hospital capacity.
-
-## Pre-arrival readiness
-
-Ambulance information can be visible before the patient reaches the ED.
-
-## Multimodal evidence
-
-Image findings can contribute additional evidence to the final assessment.
-
-## Adaptable deployment
-
-The same application can represent richer tertiary resources and more constrained rural operation.
-
-## Human oversight
-
-The clinician retains final authority and can override the recommendation.
-
-## Explainability
-
-The UI exposes not only a number but the supporting indicators, rationale, confidence and operational context.
-
-## Reproducible testing
-
-The automated suite and isolated Test Case Lab allow repeatable scenarios without mixing simulated and live workflows.
+**Never commit:** `.venv/`, `.env`, API keys, private patient data, production credentials, or database secrets. Run `git status --short` before every commit, and keep `GEMINI_API_KEY` out of source code — always.
 
 ---
 
-# 26. Safety, Scope and Limitations
+## 🚀 Why This Matters
 
-DOOM AI is a hackathon prototype.
-
-It is **not a medical device** and should not be used as a substitute for professional medical judgment.
-
-Real deployment would require, among other things:
-
-- clinical validation;
-- prospective evaluation;
-- formal governance and approval;
-- secure authentication/authorization;
-- encrypted communication;
-- privacy-preserving data handling;
-- model monitoring;
-- demographic and clinical validation;
-- hospital-system integration;
-- incident response;
-- formal audit and retention policies.
-
-The prototype therefore uses an explicit human-in-the-loop design.
+| Benefit | Impact |
+|---|---|
+| **Faster prioritization** | Multiple arriving patients processed in one unified workflow |
+| **Better queue quality** | Same-ESI patients still differentiated by real urgency signals |
+| **Resource-aware decisions** | Clinical demand weighed against actual, live hospital capacity |
+| **Pre-arrival readiness** | Ambulance data visible *before* the patient reaches the door |
+| **Multimodal evidence** | Image findings strengthen — never override — the final call |
+| **Adaptable deployment** | One codebase covers both a tertiary center and a rural PHC |
+| **Human oversight** | Clinicians keep final authority, always |
+| **Reproducible testing** | 16-case automated suite + isolated Test Case Lab, zero contamination of live data |
 
 ---
 
-# 27. Security Guidelines
+## 🗺️ Roadmap
 
-Never commit:
-
-```text
-.venv/
-.env
-API keys
-private patient data
-production credentials
-database secrets
-```
-
-Before committing:
-
-```powershell
-git status --short
-```
-
-The Gemini secret should remain in:
-
-```text
-GEMINI_API_KEY
-```
-
-and never be hardcoded into Python source.
+- **H17 — Ambulance Telemetry → ED Handoff**: a full closed-loop scenario from ambulance upload through combined assessment to final audit/report.
+- Authenticated ambulance devices & stronger hospital-network security
+- Formal FHIR/ABDM integration
+- Richer uncertainty analysis and persistent, secure telemetry storage
+- Deeper image validation, role-based access, and operational monitoring
 
 ---
 
-# 28. Current Implementation Status
+## 📜 License
 
-Implemented:
-
-```text
-✓ Hospital profile switching
-✓ Multispecialty / rural behavior
-✓ Five-level ESI workflow
-✓ Criticality and confidence presentation
-✓ Secondary priority reshuffling
-✓ Multi-patient arrival handling
-✓ Hospital capacity awareness
-✓ Resource dispatch
-✓ Transfer consideration
-✓ Operational layers
-✓ History / no-history scenarios
-✓ Demographic cohorts
-✓ Safety-floor behavior
-✓ Ambulance gateway
-✓ Ambulance telemetry preload
-✓ Ambulance-only provisional triage
-✓ Combined ambulance + hospital mode
-✓ Clinical image ingestion path
-✓ Gemini multimodal vision path
-✓ Clinician override
-✓ Audit workflow
-✓ Permission checks
-✓ FHIR-shaped middleware contract
-✓ Unseen-scenario testing
-✓ Mass-casualty simulation
-✓ UI object-contract testing
-✓ Automated reports
-✓ Isolated Test Case Lab
-✓ GitHub dependency setup
-```
+Released under the **GPL-3.0 License**. See [`LICENSE`](LICENSE) for details.
 
 ---
 
-# 29. Future Extension
+## 👤 Author
 
-A natural next validation scenario is:
+**Subhajit** ([@SubhEE27](https://github.com/SubhEE27))
+Department of Electrical Engineering, National Institute of Technology Rourkela
 
-```text
-H17 — Ambulance Telemetry → ED Handoff
-```
+- GitHub: [github.com/SubhEE27](https://github.com/SubhEE27)
+- Project: [Doom_AI_NIT_Rourkela](https://github.com/SubhEE27/Doom_AI_NIT_Rourkela)
 
-Potential flow:
-
-```text
-ambulance upload
-    ↓
-gateway
-    ↓
-lookup
-    ↓
-DOOM AI preload
-    ↓
-hospital arrival observations
-    ↓
-combined assessment
-    ↓
-final triage
-    ↓
-audit/report
-```
-
-Future production-oriented enhancements could include authenticated ambulance devices, stronger hospital-network security, formal FHIR/ABDM integration, richer uncertainty analysis, persistent secure telemetry storage, deeper image validation, role-based access and operational monitoring.
+*Feel free to open an issue or a pull request — feedback, bug reports, and contributions are welcome.*
 
 ---
 
-# 30. Final Summary
+<div align="center">
 
-DOOM AI is designed as an **emergency-department command and decision-support system**, not merely as an ESI classifier.
+### Built with 🩺 + 🤖 at NIT Rourkela
 
-Its central concept is:
+*Patient severity + clinical evidence + history + images + ambulance data + hospital profile + resource capacity + operational layer → an explainable triage recommendation, always reviewed by a human.*
 
-```text
-Patient severity
-      +
-Clinical evidence
-      +
-History availability
-      +
-Image findings, when available
-      +
-Ambulance pre-arrival data, when available
-      +
-Hospital profile
-      +
-Resource capacity
-      +
-Operational layer
-      ↓
-Triage recommendation
-      ↓
-Secondary priority ordering
-      ↓
-Resource dispatch
-      ↓
-Transfer consideration
-      ↓
-Explainable result + clinician oversight
-```
-
-When a patient arrives, DOOM AI evaluates what is known, estimates the severity, considers the hospital context, and presents a recommendation that can be reviewed by the clinician.
-
-When many patients arrive together, the system can classify them, order them dynamically, and account for resource availability.
-
-When the hospital operates under different resource conditions, the operational behavior adapts to the selected deployment profile.
-
-When a judge wants to challenge the system, the automated 16-case validation suite and isolated Test Case Lab provide reproducible scenarios without contaminating the live workflow.
-
-The overall objective is to help an emergency department move from **patient-by-patient reaction** toward a more structured, explainable and resource-aware command workflow while keeping clinical authority with the human team.
+</div>
