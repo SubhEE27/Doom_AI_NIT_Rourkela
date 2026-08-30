@@ -276,7 +276,7 @@ The runner reports `PASS` / `FAIL` / `SKIP` / `TOTAL` and writes results to `rep
 
 | Ambulance Telemetry Preload | HTML Test Report |
 |---|---|
-| ![Ambulance preload](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/ambulance.png) | ![HTML report](docs/screenshots/hackathon_report.png) |
+| ![Ambulance preload](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/ambulance.png) | ![HTML report](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/live_demo.png) |
 
 </div>
 
