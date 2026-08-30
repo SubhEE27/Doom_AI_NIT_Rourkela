@@ -63,7 +63,7 @@ class GeminiVisionAnalysisService:
     It is NOT allowed to assign ESI.
     """
 
-    DEFAULT_MODEL = "gemini-2.5-flash-lite"
+    DEFAULT_MODEL = "gemini-3.5-flash-lite"
 
     SYSTEM_INSTRUCTION = """
 You are the image-observation component of a hospital
@@ -189,6 +189,7 @@ Return ONLY valid JSON matching the requested schema.
     def analyze(
         self,
         image_path: str,
+        patient_vitals: dict[str, Any] | None = None,
     ) -> ImageAnalysisResult:
 
         path = Path(image_path)
@@ -210,16 +211,127 @@ Return ONLY valid JSON matching the requested schema.
         with path.open("rb") as file:
             image_bytes = file.read()
 
+        # ----------------------------------------------------
+        # Gemini task instruction
+        # ----------------------------------------------------
+        #
+        # The API key only authenticates Gemini. This prompt tells
+        # Gemini exactly what DOOM AI expects from the photograph.
+        #
         prompt = """
-Analyze this image strictly as a visual-observation aid
-for an emergency-department clinician.
+You are the visual evidence extraction component of DOOM AI,
+an emergency-department clinical decision-support prototype.
 
-Return:
-- visible findings;
-- possible concerns based only on visible evidence;
-- important things that cannot be determined from the image.
+Analyze the supplied patient-arrival photograph ONLY for observations
+that are visibly supported by the image.
 
-Do not assign ESI or a treatment decision.
+This is a normal camera photograph of a patient/injury scene.
+It is NOT a CT, MRI, X-ray, or ultrasound interpretation.
+
+Your job is to extract useful visual evidence for a downstream
+clinical triage system.
+
+1. GENERAL APPEARANCE
+- apparent alertness/responsiveness if visually evident
+- obvious distress
+- weakness, collapse, abnormal posture, or other observable concern
+
+2. SKIN / PERFUSION APPEARANCE
+- pallor
+- bluish/cyanotic appearance
+- mottling
+- visible sweating/diaphoresis
+- flushing
+- unusual skin coloration
+- apparently normal coloration
+
+Only report these when visually apparent.
+
+3. VISIBLE INJURY
+Look for and describe only findings that can actually be seen:
+- external bleeding
+- bruising/ecchymosis
+- swelling
+- deformity
+- abnormal limb position
+- laceration
+- abrasion
+- burns
+- chest asymmetry
+- chest-wall depression/deformity
+- abdominal distension
+- visible abdominal bruising
+- other clearly visible abnormalities
+
+4. POSSIBLE CLINICAL CONCERNS
+Based only on visible evidence, state cautious possibilities such as:
+- possible fracture
+- possible soft-tissue injury
+- possible significant blood loss
+- possible poor perfusion/shock concern
+- possible internal injury
+- possible respiratory compromise
+
+Do NOT claim that any diagnosis is confirmed from a photograph.
+
+Use wording such as:
+"possible"
+"suggestive of"
+"concerning for"
+"cannot exclude"
+
+5. VITAL-SIGN CONTEXT
+If HR and SBP are supplied in the patient context below,
+calculate:
+
+Shock Index = HR / SBP
+
+Report the numerical value.
+
+If HR or SBP is missing, state:
+"Shock Index cannot be calculated from the supplied data."
+
+Do not invent or estimate vital signs.
+
+6. TRIAGE RELEVANCE
+State whether the visual findings add:
+- high-acuity concern,
+- moderate concern,
+- low-acuity concern,
+- or no obvious additional urgency.
+
+IMPORTANT:
+- Do not invent findings that are not visible.
+- Do not infer internal bleeding solely from skin colour or bruising.
+- Do not diagnose a fracture from appearance alone unless there is
+  a strong visible clue such as deformity/swelling.
+- Do not assign ESI.
+- Do not make a treatment decision.
+- Do not claim hemodynamic stability from appearance alone.
+- Image findings are supporting evidence only.
+- Final triage must use the complete patient record and remain
+  subject to clinician review.
+
+Return ONLY valid JSON matching the supplied response schema.
+"""
+
+        patient_vitals = patient_vitals or {}
+
+        hr = patient_vitals.get("hr")
+        sbp = patient_vitals.get("sbp")
+        rr = patient_vitals.get("rr")
+        spo2 = patient_vitals.get("spo2")
+
+        patient_context = f"""
+PATIENT CONTEXT
+
+Heart Rate (HR): {hr if hr is not None else "not supplied"}
+Systolic Blood Pressure (SBP): {sbp if sbp is not None else "not supplied"}
+Respiratory Rate (RR): {rr if rr is not None else "not supplied"}
+SpO2: {spo2 if spo2 is not None else "not supplied"}
+
+Use these values only as supplied.
+Do not invent or modify them.
 """
 
         response = self.client.models.generate_content(
@@ -230,6 +342,7 @@ Do not assign ESI or a treatment decision.
                     mime_type=mime_type,
                 ),
                 prompt,
+                patient_context,
             ],
             config=types.GenerateContentConfig(
                 system_instruction=(

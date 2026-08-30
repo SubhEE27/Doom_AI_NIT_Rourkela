@@ -2075,9 +2075,19 @@ class MainWindowController:
 
         try:
 
+            # Pass the currently entered patient vitals to the
+            # Gemini vision layer as supporting context. The image
+            # parser still produces visual findings only; it does not
+            # assign ESI.
             result = (
                 self.image_parser.analyze(
-                    path
+                    path,
+                    patient_vitals={
+                        "hr": self.window.hr.value(),
+                        "sbp": self.window.sbp.value(),
+                        "rr": self.window.rr.value(),
+                        "spo2": self.window.spo2.value(),
+                    },
                 )
             )
 

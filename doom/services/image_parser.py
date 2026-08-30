@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 from PySide6.QtGui import QImageReader
 
@@ -127,6 +127,7 @@ class ImageParser:
     def analyze(
         self,
         path: str,
+        patient_vitals: Dict[str, Any] | None = None,
     ) -> ImageAnalysisResult:
 
         if self.vision_service is None:
@@ -151,7 +152,8 @@ class ImageParser:
             )
 
         return self.vision_service.analyze(
-            path
+            path,
+            patient_vitals=patient_vitals,
         )
 
     # ========================================================
