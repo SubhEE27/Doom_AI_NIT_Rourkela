@@ -268,15 +268,15 @@ The runner reports `PASS` / `FAIL` / `SKIP` / `TOTAL` and writes results to `rep
 
 | Live Triage Console | Test Case Lab |
 |---|---|
-| ![Live Triage Console](docs/screenshots/live_triage_console.png) | ![Test Case Lab](https://dash.cloudflare.com/f62295aa5ed7e36cd3ac635d38135e84/r2/default/buckets/doomai/objects/Live.png) |
+| ![Live Triage Console](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/Test_case.png) | ![Test Case Lab](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/Live.png) |
 
 | H04 — Same-ESI Reshuffle | H15 — Mass Casualty Surge |
 |---|---|
-| ![H04 result](docs/screenshots/h04_same_esi_reshuffle.png) | ![H15 result](docs/screenshots/h15_mass_casualty.png) |
+| ![H04 result](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/h04_test.png) | ![H15 result](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/h15_test.png) |
 
 | Ambulance Telemetry Preload | HTML Test Report |
 |---|---|
-| ![Ambulance preload](docs/screenshots/ambulance_preload.png) | ![HTML report](docs/screenshots/hackathon_report.png) |
+| ![Ambulance preload](https://pub-0bc38663257b49f592b285cc7e5d32eb.r2.dev/ambulance.png) | ![HTML report](docs/screenshots/hackathon_report.png) |
 
 </div>
 
